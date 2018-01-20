@@ -1,0 +1,14 @@
+﻿<Window x:Class="Communication_Manager.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Communication_Manager"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="350" Width="525">
+    <Grid>
+        <Image x:Name="image" HorizontalAlignment="Left" Height="236" Margin="10,0,0,0" VerticalAlignment="Top" Width="497" Source="Images/welcome_barning.jpg" Stretch="Fill" StretchDirection="UpOnly"/>
+        <Button x:Name="button" Content="Connection manager" HorizontalAlignment="Left" Margin="168,241,0,0" VerticalAlignment="Top" Width="161" Height="54" Click="button_Click"/>
+
+    </Grid>
+</Window>
