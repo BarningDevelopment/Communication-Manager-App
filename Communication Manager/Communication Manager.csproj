@@ -65,9 +65,16 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AccessPoint.cs" />
+    <Compile Include="AuthRequest.cs" />
+    <Compile Include="EapUserFactory.cs" />
+    <Compile Include="Interop.cs" />
+    <Compile Include="ProfileFactory.cs" />
+    <Compile Include="wifiConnect.cs" />
     <Compile Include="Window1.xaml.cs">
       <DependentUpon>Window1.xaml</DependentUpon>
     </Compile>
+    <Compile Include="WlanApi.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
