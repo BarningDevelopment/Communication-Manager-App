@@ -65,8 +65,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="AccessPoint.cs" />
-    <Compile Include="AuthRequest.cs" />
     <Compile Include="EapUserFactory.cs" />
     <Compile Include="Interop.cs" />
     <Compile Include="ProfileFactory.cs" />

@@ -4,6 +4,9 @@ using System.Windows.Controls;
 using NativeWifi;
 using System.Runtime.InteropServices;
 using SimpleWifi;
+using SimpleWifi.Win32;
+using SimpleWifi.Win32.Interop;
+using System;
 
 namespace Communication_Manager
 {
@@ -12,7 +15,8 @@ namespace Communication_Manager
     /// </summary>
     public partial class Window1 : Window
     {
-       
+        private WlanInterface _interface;
+        private WlanAvailableNetwork _network;
         public Window1()
         {
             InitializeComponent();
@@ -64,19 +68,19 @@ namespace Communication_Manager
                     DisplayMemberBinding = new System.Windows.Data.Binding("RSSID")
                 });
 
-                WlanClient client = new WlanClient();
+                NativeWifi.WlanClient client = new NativeWifi.WlanClient();
 
                 try
                 {
                     wifi_password_label.Content = "";
-                    foreach (WlanClient.WlanInterface wlanIface in client.Interfaces)
-                    {
 
+                    foreach (NativeWifi.WlanClient.WlanInterface wlanIface in client.Interfaces)
+                    {
+                        //string asdsadf = wlanIface.InterfaceName;
                         Wlan.WlanBssEntry[] wlanBssEntries = wlanIface.GetNetworkBssList();
 
                         foreach (Wlan.WlanBssEntry network in wlanBssEntries)
-                        {                            
-
+                        {
                             int rss = network.rssi;
                             //     MessageBox.Show(rss.ToString());
                             byte[] macAddr = network.dot11Bssid;
@@ -85,34 +89,20 @@ namespace Communication_Manager
 
                             for (int i = 0; i < macAddr.Length; i++)
                             {
-
                                 tMac += macAddr[i].ToString("x2").PadLeft(2, '0').ToUpper();
                             }
                             Wlan.Dot11Ssid ssid = network.dot11Ssid;
 
                             string networkName = System.Text.Encoding.ASCII.GetString(ssid.SSID, 0, (int)ssid.SSIDLength);
                             uint signal = network.linkQuality;
-                            string bssType = network.dot11BssType + "la";
+                            string bssType = network.dot11BssType + "";
                             string MAC = tMac;
                             string RSSID = rss.ToString();
 
-
                             // Populate list
-                            this.wifi_listView.Items.Add(new wifiConnect { AccesPoint = networkName, Signal = signal, BSSType = bssType, MAC = MAC, RSSID = RSSID });
-                                                
-                        }
-                        wifiConnect selectedItem = (wifiConnect)wifi_listView.SelectedItem;
-                       
-                        if (selectedItem !=null)
-                        {
-                            
-                            wifi_password_label.Content = "AccesPoint is selected" + selectedItem.AccesPoint;
-                        }else
-                        {
-                            wifi_password_label.Content = "Please select an AccesPoint" ;
-                        }
+                            this.wifi_listView.Items.Add(new wifiConnect { AccesPoint = networkName, Signal = signal, BSSType = bssType, MAC = MAC, RSSID = RSSID });                                                
+                        }                       
                     }
-
                 }
                 catch (System.Exception ex)
                 {
@@ -126,58 +116,66 @@ namespace Communication_Manager
             
         }
 
-
         
+
         private void wifi_connect_button_Click(object sender, RoutedEventArgs e)
-        {
-            wifi_password_label.Content = "Connet to wifi AP...";
-           
+        {            
+            Wifi wifi = new Wifi();
 
-            if (wifi_listView.SelectedItems.Count > 0 )
+            // get list of access points
+            IEnumerable<AccessPoint> accessPoints = wifi.GetAccessPoints();
+
+            // for each access point from list
+            foreach (AccessPoint ap in accessPoints)
             {
-                wifiConnect selectedItem = (wifiConnect)wifi_listView.SelectedItem;
-                MessageBox.Show(selectedItem.AccesPoint);
-
-                ListView selectAp = new ListView();
-                selectAp.Items.Add(selectedItem.AccesPoint);
-                SimpleWifi.AccessPoint ap = (AccessPoint)selectAp.Tag;
-
-                if (ConnectToWifi(ap, wifi_passwordBox.Password))
+                if (ap.IsConnected)
                 {
-                    wifi_password_label.Content = "You are now connected to the internet";
+                    wifiConnect selectedItem = (wifiConnect)wifi_listView.SelectedItem;
+                    wifi_password_label.Content = "Already connected to " + selectedItem.AccesPoint;
+                    return;
+                }else { 
 
-                }
-                else
-                {
-                    wifi_password_label.Content = "Something went wrong try again";
+                    Console.WriteLine("ap: {0}\r\n", ap.Name);
+                    //check if SSID is desired
+                    wifiConnect selectedAp = (wifiConnect)wifi_listView.SelectedItem;
+
+                    if (ap.Name.StartsWith(selectedAp.AccesPoint))
+                    {
+                        //verify connection to desired SSID
+                   
+                        wifi_password_label.Content= ("connected:"+ ap.Name + "password needed: "+ ap.IsConnected +  "profile"+  ap.HasProfile+"\r\n");
+                                                
+                        wifi_password_label.Content =("Trying to connect..\r\n");
+                        //AuthRequest authRequest = new AuthRequest(ap);
+                        //authRequest.Password = "!VrH*DY^%4mdf&582GD8";                        
+                        ConnectToWifi(ap, wifi_passwordBox.Password);
+                    }
                 }
             }
-            else
-            {
-                wifi_password_label.Content = "Please select a network";
-            }
-            
-            
-
         }
 
         private bool ConnectToWifi(SimpleWifi.AccessPoint ap, string password)
         {
-            SimpleWifi.AuthRequest authRequest = new SimpleWifi.AuthRequest(ap);
+           SimpleWifi.AuthRequest authRequest = new SimpleWifi.AuthRequest(ap);
            authRequest.Password = wifi_passwordBox.Password;
-
             return ap.Connect(authRequest);
-
         }
-        private void wifi_listView_SelectionChanged(object sender, System.EventArgs e)
+
+        private void wifi_listView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if ((wifi_checkBox.IsChecked == true) && (wifi_listView.SelectedItem != null))
+            {
+                wifiConnect selectedItem = (wifiConnect)wifi_listView.SelectedItem;
 
-
+                if (selectedItem != null)
+                {
+                    wifi_password_label.Content = ("AccesPoint " + selectedItem.AccesPoint + " is selected");
+                }
+            }
         }
 
         private void wifi_password_TextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-
         }
 
 
@@ -205,11 +203,8 @@ namespace Communication_Manager
 
         private void listView1_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            
         }
 
-        private void wifi_listView_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-
-        }
     }
 }
