@@ -1,0 +1,6 @@
+language: csharp
+solution: internetbooster.sln
+
+notifications:
+  email: barningdevelopment@gmail.com
+  slack: g9P2b6HrlyRByEZdb3WqsKCJ
