@@ -27,15 +27,8 @@ namespace Communication_Manager
         }
 
         private void checkBox1_Checked(object sender, RoutedEventArgs e)
-        {
-            
+        {            
         }
-
-
-
-
-
-
         //wifi elements
         private void wifi_checkBox_Checked(object sender, RoutedEventArgs e)
         {
@@ -116,11 +109,8 @@ namespace Communication_Manager
             }else if (wifi_checkBox.IsChecked == false)
             {
                 wifi_password_label.Content = "Please select connection type";
-            }                      
-            
-        }
-
-        
+            }       
+        }       
 
         private void wifi_connect_button_Click(object sender, RoutedEventArgs e)
         {            
@@ -190,11 +180,7 @@ namespace Communication_Manager
         private void mobile_checkBox_Checked(object sender, RoutedEventArgs e)
         {
             if (mobile_checkBox.IsChecked == true)
-            {
-                mobile_password_label.Content = "mobile connections are beeing collected......";
-
-
-                //get connected to UMTS mobile broadband              
+            { //get connected to UMTS mobile broadband              
 
                 mobile_password_label.Content = "mobile connections are beeing collected......";
 
@@ -208,7 +194,8 @@ namespace Communication_Manager
 
                 if (ImbnConnectionMgr != null)
                 {
-                    IMbnConnection[] connections = (IMbnConnection[])ImbnConnectionMgr.GetConnections();
+                    mobile_password_label.Content = "there are mobile connections";
+                    //IMbnConnection[] connections = (IMbnConnection[])ImbnConnectionMgr.GetConnections();
 
 
                 }else
