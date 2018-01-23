@@ -211,6 +211,9 @@ namespace Communication_Manager
                     IMbnConnection[] connections = (IMbnConnection[])ImbnConnectionMgr.GetConnections();
 
 
+                }else
+                {
+                    mobile_password_label.Content = "no connections";
                 }
                 /*
                     foreach (IDbConnection conn in connections)
