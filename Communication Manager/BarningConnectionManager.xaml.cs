@@ -7,6 +7,10 @@ using SimpleWifi;
 using SimpleWifi.Win32;
 using SimpleWifi.Win32.Interop;
 using System;
+using System.Data;
+
+using MbnApi;
+
 
 namespace Communication_Manager
 {
@@ -188,6 +192,47 @@ namespace Communication_Manager
             if (mobile_checkBox.IsChecked == true)
             {
                 mobile_password_label.Content = "mobile connections are beeing collected......";
+
+
+                //get connected to UMTS mobile broadband              
+
+                mobile_password_label.Content = "mobile connections are beeing collected......";
+
+                MbnInterfaceManager mbnInfMgr = new MbnInterfaceManager();
+                IMbnInterfaceManager infMgr = (IMbnInterfaceManager)mbnInfMgr;
+
+
+                MbnConnectionManager mbnConnectionMgr = new MbnConnectionManager();
+                IMbnConnectionManager ImbnConnectionMgr = (IMbnConnectionManager)mbnConnectionMgr;
+
+
+                if (ImbnConnectionMgr != null)
+                {
+                    IMbnConnection[] connections = (IMbnConnection[])ImbnConnectionMgr.GetConnections();
+
+
+                }
+                /*
+                    foreach (IDbConnection conn in connections)
+                    {
+                        IMbnInterface mobileInterface = infMgr.GetInterface(conn.InterfaceID) as IMbnInterface;
+                        MBN_INTERFACE_CAPS caps = mobileInterface.GetInterfaceCapability();
+
+                        MBN_PROVIDER provider = mobileInterface.GetHomeProvider();
+
+                        List<string> InterfaceCaps = new List<string>();
+                        InterfaceCaps.Add(caps.deviceID);
+                        //MessageBox.Show("Device Id :" + caps.deviceID + "DataClass: " + caps.cellularClass + "Manufacturer: " + caps.manufacturer + "Model : " + caps.model + "Firmware Version: " + caps.firmwareInfo);
+
+                    }
+
+                }
+                else
+                {
+                    mobile_password_label.Content = "hjhjkljlkjlkjljl";
+
+                }
+                */
             }
         }
 
