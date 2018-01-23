@@ -1,0 +1,5 @@
+language: csharp
+solution: Communication Manager.sln
+
+ notifications:
+    slack: barningdevelopment:5HC7VIgwslGm9GInplJLRDGs
