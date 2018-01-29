@@ -8,7 +8,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using NativeWifi;
 
-namespace Communication_Manager
+namespace ConnectionManager
 {
     class wifiConnect
     {

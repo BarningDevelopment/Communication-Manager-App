@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Communication_Manager
+namespace ConnectionManager
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -26,10 +26,11 @@ namespace Communication_Manager
         }
 
         private void button_Click(object sender, RoutedEventArgs e)
-        {
+        {  
+            this.Hide();   
             Window1 connManager = new Window1();
+            connManager.Closed += (s, args) => this.Close();
             connManager.Show();
-            this.Close();
         }
     }
 }

@@ -1,14 +1,14 @@
-﻿<Window x:Class="Communication_Manager.MainWindow"
+﻿<Window x:Class="ConnectionManager.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Communication_Manager"
+        xmlns:local="clr-namespace:ConnectionManager"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="Barning Connection Manager" Height="381" Width="702" Icon="Images/welcome_barning.jpg">
     <Grid>
-        <Image x:Name="image" HorizontalAlignment="Left" Height="236" Margin="10,0,0,0" VerticalAlignment="Top" Width="497" Source="Images/welcome_barning.jpg" Stretch="Fill" StretchDirection="UpOnly"/>
-        <Button x:Name="button" Content="Connection manager" HorizontalAlignment="Left" Margin="168,241,0,0" VerticalAlignment="Top" Width="161" Height="54" Click="button_Click"/>
+        <Image x:Name="image" HorizontalAlignment="Left" Height="236" Margin="101,29,0,0" VerticalAlignment="Top" Width="497" Source="Images/welcome_barning.jpg" Stretch="Fill" StretchDirection="UpOnly"/>
+        <Button x:Name="button" Content="Connection manager" HorizontalAlignment="Left" Margin="278,255,0,0" VerticalAlignment="Top" Width="161" Height="54" Click="button_Click" BorderThickness="3" ToolTip="click to connect to networks" Background="#FF004994" FontWeight="Bold"/>
 
     </Grid>
 </Window>

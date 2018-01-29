@@ -1,18 +1,18 @@
-﻿<Window x:Name="wifi_checkbox" x:Class="Communication_Manager.Window1"
+﻿<Window x:Name="wifi_checkbox" x:Class="ConnectionManager.Window1"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Communication_Manager"
+        xmlns:local="clr-namespace:ConnectionManager"
         mc:Ignorable="d"
-        Title="Window1" Height="422" Width="712">
+        Title="Barning Connection Manager" Height="422" Width="712" Topmost="True" SizeToContent="WidthAndHeight" Icon="Images/welcome_barning.jpg" Background="#FFD7DEE6">
     <Grid Height="381" VerticalAlignment="Top" HorizontalAlignment="Left" Width="702">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="263*"/>
             <ColumnDefinition Width="262*"/>
         </Grid.ColumnDefinitions>
-        <CheckBox x:Name="wifi_checkBox" Content="Wifi" HorizontalAlignment="Left" Margin="59,30,0,0" VerticalAlignment="Top" Checked="wifi_checkBox_Checked"/>
-        <CheckBox x:Name="mobile_checkBox" Content="Mobile" Margin="59,181,199,186" Checked="mobile_checkBox_Checked"/>
+        <CheckBox x:Name="wifi_checkBox" Content="Wifi" HorizontalAlignment="Left" Margin="59,30,0,0" VerticalAlignment="Top" Checked="wifi_checkBox_Checked" Background="#FF896E6E"/>
+        <CheckBox x:Name="mobile_checkBox" Content="Mobile" Margin="59,181,199,186" Checked="mobile_checkBox_Checked" Background="#FF896E6E"/>
         <ListView x:Name="wifi_listView" HorizontalAlignment="Left" Height="100" Margin="10,56,0,0" VerticalAlignment="Top" Width="447" Grid.ColumnSpan="2" SelectionChanged="wifi_listView_SelectionChanged" BorderThickness="2">
             <ListView.Effect>
                 <DropShadowEffect/>
@@ -33,21 +33,12 @@
                 </GridView>
             </ListView.View>
         </ListView>
-        <Button x:Name="wifi_connect_button" HorizontalAlignment="Left" Margin="150,39,0,0" VerticalAlignment="Top" Width="120" Height="25" Content="wifi connect" Grid.Column="1" Click="wifi_connect_button_Click"/>
-        <Button x:Name="mobile_connect_button" Content="mobile connect" HorizontalAlignment="Left" Margin="161,190,0,0" VerticalAlignment="Top" Width="123" Grid.Column="1" Click="mobile_connect_button_Click" RenderTransformOrigin="0.5,0.5" Height="29">
-            <Button.RenderTransform>
-                <TransformGroup>
-                    <ScaleTransform/>
-                    <SkewTransform AngleX="-2.603"/>
-                    <RotateTransform/>
-                    <TranslateTransform X="-0.455"/>
-                </TransformGroup>
-            </Button.RenderTransform>
-        </Button>
-        <Label x:Name="wifi_password_label" Content="Password" HorizontalAlignment="Left" Margin="136,69,0,0" VerticalAlignment="Top" Width="204" Grid.Column="1" AutomationProperties.Name="wifi_password_label" Height="59"/>
-        <Label x:Name="mobile_password_label" Content="Password" HorizontalAlignment="Left" Margin="114,221,0,0" VerticalAlignment="Top" Width="226" Grid.Column="1" Height="56"/>
-        <PasswordBox x:Name="wifi_passwordBox" Grid.Column="1" HorizontalAlignment="Left" Margin="150,133,0,0" VerticalAlignment="Top" Width="164" Height="23"/>
-        <PasswordBox x:Name="mobile_passwordBox" Grid.Column="1" HorizontalAlignment="Left" Margin="150,282,0,0" VerticalAlignment="Top" Width="164" Height="27"/>
+        <Button x:Name="wifi_connect_button" HorizontalAlignment="Left" Margin="150,39,0,0" VerticalAlignment="Top" Width="120" Height="25" Content="wifi connect" Grid.Column="1" Click="wifi_connect_button_Click" Background="#FFB65353"/>
+        <Button x:Name="mobile_connect_button" Content="mobile connect" HorizontalAlignment="Left" Margin="161,190,0,0" VerticalAlignment="Top" Width="120" Grid.Column="1" Click="mobile_connect_button_Click" Height="29" Background="#FFB65353"/>
+        <Label x:Name="wifi_password_label" Content="Password" HorizontalAlignment="Left" Margin="150,69,0,0" VerticalAlignment="Top" Width="164" Grid.Column="1" Height="59"/>
+        <Label x:Name="mobile_password_label" Content="Password" HorizontalAlignment="Left" Margin="150,226,0,0" VerticalAlignment="Top" Width="164" Grid.Column="1" Height="56"/>
+        <PasswordBox x:Name="wifi_passwordBox" Grid.Column="1" HorizontalAlignment="Left" Margin="150,133,0,0" VerticalAlignment="Top" Width="164" Height="27" Background="#FF897272"/>
+        <PasswordBox x:Name="mobile_passwordBox" Grid.Column="1" HorizontalAlignment="Left" Margin="150,287,0,0" VerticalAlignment="Top" Width="164" Height="27" Background="#FF897272"/>
 
     </Grid>
 </Window>

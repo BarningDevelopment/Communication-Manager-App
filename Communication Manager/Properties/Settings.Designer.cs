@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Communication_Manager.Properties
+namespace MBNConnect.Properties
 {
 
 
