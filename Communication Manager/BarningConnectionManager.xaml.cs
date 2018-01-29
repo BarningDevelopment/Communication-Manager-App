@@ -3,12 +3,11 @@ using System.Windows;
 using System.Windows.Controls;
 using NativeWifi;
 using SimpleWifi;
-using SimpleWifi.Win32;
-using SimpleWifi.Win32.Interop;
-using System;
-using MbnApi;
 using System.Net.NetworkInformation;
+using System.Xml;
+using MBNConnect;
 using Communication_Manager;
+using System.IO;
 
 namespace ConnectionManager
 {
@@ -17,18 +16,11 @@ namespace ConnectionManager
     /// </summary>
     public partial class Window1 : Window
     {
-        private WlanInterface _interface;
-        private WlanAvailableNetwork _network;
-        private int PhoneSignal;
-        private uint cookie;
-        private bool showProgress;
-
         public string PhoneNetwork { get; private set; }
         public string SIMNumber { get; private set; }
         public string APNAccessString { get; private set; }
         public string APNAuthProtocol { get; private set; }
-        public string APNUsername { get; private set; }
-        
+        public string APNUsername { get; private set; }        
         public string APNPassword { get; private set; }
         public string APNCompression { get; private set; }
 
@@ -57,7 +49,6 @@ namespace ConnectionManager
                     Header = "Signal Strength",
                     DisplayMemberBinding = new System.Windows.Data.Binding("Signal")
                 });
-
                 gridView.Columns.Add(new GridViewColumn
                 {
                     Header = "BSSType",
@@ -84,15 +75,12 @@ namespace ConnectionManager
 
                     foreach (NativeWifi.WlanClient.WlanInterface wlanIface in client.Interfaces)
                     {
-                        //string asdsadf = wlanIface.InterfaceName;
-                        Wlan.WlanBssEntry[] wlanBssEntries = wlanIface.GetNetworkBssList();
+                       Wlan.WlanBssEntry[] wlanBssEntries = wlanIface.GetNetworkBssList();
 
                         foreach (Wlan.WlanBssEntry network in wlanBssEntries)
                         {
                             int rss = network.rssi;
-                            //     MessageBox.Show(rss.ToString());
                             byte[] macAddr = network.dot11Bssid;
-
                             string tMac = "";
 
                             for (int i = 0; i < macAddr.Length; i++)
@@ -107,8 +95,7 @@ namespace ConnectionManager
                             string MAC = tMac;
                             string RSSID = rss.ToString();
 
-                            // Populate list
-                            
+                            // Populate list                            
                             wifi_listView.Items.Add(new wifiConnect { AccesPoint = networkName, Signal = signal, BSSType = bssType, MAC = MAC, RSSID = RSSID });                                                
                         }                       
                     }
@@ -180,7 +167,7 @@ namespace ConnectionManager
                             wifi_password_label.Content = ("connected:" + ap.Name + System.Environment.NewLine);
                             wifi_password_label.Content += ("password needed: " + ap.IsConnected+ System.Environment.NewLine);
                             wifi_password_label.Content += ("profile" + ap.HasProfile + System.Environment.NewLine);
-                            }                       
+                            }
                     }
                 }
             }
@@ -198,89 +185,158 @@ namespace ConnectionManager
         public void mobile_checkBox_Checked(object sender, RoutedEventArgs e)
         {
             mobile_password_label.Content = "Checking mobile networks....";
+
+            //create mobile profile if not exist
+            CreateMobileProfile();
+            //netsh mbn show profile
+
             Communication_Manager.MBNConnect connectInfo = new Communication_Manager.MBNConnect();
 
             NetworkInterface[] networkIntrInterfaces = NetworkInterface.GetAllNetworkInterfaces();
 
             foreach (NetworkInterface networkInterface in networkIntrInterfaces)
             {
-                IPv4InterfaceStatistics interfaceStats = networkInterface.GetIPv4Statistics();
-                int bytesSentSpeed = (int)(interfaceStats.BytesSent);
+                //select only mobile apn
+                if (networkInterface.Name.Contains("Internal Ethernet Port Windows Phone Emulator Internal Switch")){
+                    IPv4InterfaceStatistics interfaceStats = networkInterface.GetIPv4Statistics();
+                    int bytesSentSpeed = (int)(interfaceStats.BytesSent);
 
-               
-                string id = networkInterface.Id;
-                string name  = networkInterface.Name;
-                string  description = networkInterface.Description;
-                PhysicalAddress physical_address = networkInterface.GetPhysicalAddress();
-                
-                //create the view
-                var gridview = new GridView();
-                this.mobile_listView.View = gridview;
+                    string id = (string)networkInterface.Id;
+                    string name = (string)networkInterface.Name;
+                    string description = (string)networkInterface.Description;
+                    PhysicalAddress physical_address = networkInterface.GetPhysicalAddress();
 
-                gridview.Columns.Add(new GridViewColumn
-                {
-                    Header = "MaxBandWidth",
-                    DisplayMemberBinding = new System.Windows.Data.Binding("MaxBandWidth")
-                });
+                    //create the view
+                    var gridview = new GridView();
+                    this.mobile_listView.View = gridview;
 
-                gridview.Columns.Add(new GridViewColumn
-                {
-                    Header = "bytesSentSpeed",
-                    DisplayMemberBinding = new System.Windows.Data.Binding("BytesSentSpeed")
-                });
+                    gridview.Columns.Add(new GridViewColumn
+                    {
+                        Header = "Name",
+                        DisplayMemberBinding = new System.Windows.Data.Binding("Name")
+                    });
 
-                gridview.Columns.Add(new GridViewColumn
-                {
-                    Header = "Name",
-                    DisplayMemberBinding = new System.Windows.Data.Binding("name")
-                });
+                    gridview.Columns.Add(new GridViewColumn
+                    {
+                        Header = "Id",
+                        DisplayMemberBinding = new System.Windows.Data.Binding("Id")
+                    });
 
-                gridview.Columns.Add(new GridViewColumn
-                {
-                    Header = "ID",
-                    DisplayMemberBinding = new System.Windows.Data.Binding("id")
-                });
+                    gridview.Columns.Add(new GridViewColumn
+                    {
+                        Header = "Adress",
+                        DisplayMemberBinding = new System.Windows.Data.Binding("Adress")
+                    });
+                    gridview.Columns.Add(new GridViewColumn
+                    {
+                        Header = "Netwerk",
+                        DisplayMemberBinding = new System.Windows.Data.Binding("Netwerk")
+                    });
+                    gridview.Columns.Add(new GridViewColumn
+                    {
+                        Header = "MaxBandWidth",
+                        DisplayMemberBinding = new System.Windows.Data.Binding("MaxBandWidth")
+                    });
 
-                gridview.Columns.Add(new GridViewColumn
-                {
-                    Header = "Adress",
-                    DisplayMemberBinding = new System.Windows.Data.Binding("physical_address")
-                });
-                gridview.Columns.Add(new GridViewColumn
-                {
-                    Header = "Netwerk",
-                    DisplayMemberBinding = new System.Windows.Data.Binding("description")
-                });
+                    gridview.Columns.Add(new GridViewColumn
+                    {
+                        Header = "BytesSentSpeed",
+                        DisplayMemberBinding = new System.Windows.Data.Binding("BytesSentSpeed")
+                    });
 
-                int maxBandWidth = connectInfo.GetMaxBandwidth();
+                    int maxBandWidth = connectInfo.GetMaxBandwidth();
 
-                mobile_listView.Items.Add(new Communication_Manager.MBNConnect { Name = name, Id = id, Adress = physical_address, Netwerk = description,MaxBandWidth = maxBandWidth, BytesSentSpeed = bytesSentSpeed,  });
+                    mobile_listView.Items.Add(new Communication_Manager.MBNConnect { Name = name, Id = id, Adress = physical_address, Netwerk = networkInterface.Description, MaxBandWidth = maxBandWidth, BytesSentSpeed = bytesSentSpeed });
+                }
             }
         }     
                     
           public void ForceMobileConnection()
         {
-            //route print
-        }        
-     
-        
-                   
-        
-
-        private void mobile_connect_button_Click(object sender, RoutedEventArgs e)
-        {
-
+            //IMbnConnectionProfileManager::CreateConnectionProfile method
         }
 
-        private void mobile_password_TextBox_TextChanged(object sender, TextChangedEventArgs e)
+        public void CreateMobileProfile()
         {
+            //create mobile profile v4 windows10
+            //https://msdn.microsoft.com/nl-nl/library/windows/desktop/mt243438
+            /* XNamespace xmlns = XNamespace.Get(http://www.microsoft.com/networking/WWAN/profile/v4"");
 
-        }
+             XDocument xmlDocument = new XDocument(
+                 new XElement(xmlns + "MBNProfile",
+                 new XElement(xmlns + "Name", "boomer3g"),
+                 new XElement(xmlns + "ICONFilePath", Path.GetFullPath("Resource/KPN-icon.bmp")),
+                 new XElement(xmlns + "Description", "3G Network profile created by Boomerweb"),
+                 new XElement(xmlns + "IsDefault", true),
+                 new XElement(xmlns + "ProfileCreationType", "UserProvisioned"),
+                 new XElement(xmlns + "SubscriberID", subscriberInfo.SubscriberID),
+                 new XElement(xmlns + "SimIccID", subscriberInfo.SimIccID),
+                 new XElement(xmlns + "AutoConnectOnInternet", false),
+                 new XElement(xmlns + "ConnectionMode", "auto")
+                )
+             );
 
-        private void listView1_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
+             //Create xml document
+             string xml;
+             XmlWriterSettings XmlWriterSet = new XmlWriterSettings();
+             XmlWriterSet.OmitXmlDeclaration = true;
+             using (StringWriter StrWriter = new StringWriter())
+             using (XmlWriter XWriter = XmlWriter.Create(StrWriter, XmlWriterSet))
+             {
+                 xmlDocument.WriteTo(XWriter);
+                 XWriter.Flush();
+                 xml = StrWriter.GetStringBuilder().ToString();
+             }
+             */
             
-        }
 
-    }
+            MBNXMLCreator MBNProfile = new MBNXMLCreator();
+
+           XmlWriterSettings settings = new XmlWriterSettings();
+           settings.OmitXmlDeclaration = true;           
+
+           using (XmlWriter writer = XmlWriter.Create("MBNProfile.xml", settings))
+           {
+              string m_strFilePath = "http://www.microsoft.com/networking/WWAN/profile/v4";     
+                
+            XmlDocument xmlDocument = new XmlDocument();
+                //writer.WriteStartElement(m_strFilePath);
+                writer.WriteStartElement("MBNProfile");
+                writer.WriteElementString("Name", "boomer3g");
+                writer.WriteElementString("ICONFilePath", Path.GetFullPath("Images/Vodafone.bmp"));
+                writer.WriteElementString("Description", "3G Network profile created by Mwalima Peltenburg");
+                writer.WriteElementString("IsDefault", "true");
+                writer.WriteElementString("ProfileCreationType", "UserProvisioned");
+                writer.WriteElementString("SubscriberID", "subscriberInfo.SubscriberID");
+                writer.WriteElementString("SimIccID", "subscriberInfo.SimIccID");
+                writer.WriteElementString("AutoConnectOnInternet","false");
+                writer.WriteElementString("ConnectionMode", "auto");
+
+                //xmlDocument.Load(m_strFilePath);
+                writer.WriteEndElement();
+               writer.Flush();
+               mobile_password_label.Content = "Profile is created";
+           }
+       }
+       private void mobile_connect_button_Click(object sender, RoutedEventArgs e)
+       {
+           //connect to mobile profile
+           mobile_password_label.Content = "Connected to Mobile Broadband Network";
+       }
+
+       private void mobile_password_TextBox_TextChanged(object sender, TextChangedEventArgs e)
+       {
+
+       }
+
+       private void listView1_SelectionChanged(object sender, SelectionChangedEventArgs e)
+       {
+           if ((mobile_checkBox.IsChecked == true) && (mobile_listView.SelectedItem != null))
+           {
+
+               mobile_password_label.Content = "Mobile Broadband Network selected";
+           }
+       }
+
+   }
 }

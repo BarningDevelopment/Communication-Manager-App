@@ -109,6 +109,7 @@
     <Compile Include="EapUserFactory.cs" />
     <Compile Include="Interop.cs" />
     <Compile Include="MBNConnect.cs" />
+    <Compile Include="MBNXMLCreator.cs" />
     <Compile Include="ProfileFactory.cs" />
     <Compile Include="wifiConnect.cs" />
     <Compile Include="BarningConnectionManager.xaml.cs">
@@ -189,6 +190,9 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Vodafone.bmp" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Baseclass.Contrib.Nuget.Output.2.4.1\build\net40\Baseclass.Contrib.Nuget.Output.targets" Condition="Exists('..\packages\Baseclass.Contrib.Nuget.Output.2.4.1\build\net40\Baseclass.Contrib.Nuget.Output.targets')" />
