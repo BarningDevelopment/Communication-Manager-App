@@ -6,8 +6,9 @@ using SimpleWifi;
 using System.Net.NetworkInformation;
 using System.Xml;
 using MBNConnect;
-using Communication_Manager;
+using MBNConnect;
 using System.IO;
+using MbnApi;
 
 namespace ConnectionManager
 {
@@ -190,7 +191,7 @@ namespace ConnectionManager
             CreateMobileProfile();
             //netsh mbn show profile
 
-            Communication_Manager.MBNConnect connectInfo = new Communication_Manager.MBNConnect();
+            MBNConnect.MBNConnect connectInfo = new MBNConnect.MBNConnect();
 
             NetworkInterface[] networkIntrInterfaces = NetworkInterface.GetAllNetworkInterfaces();
 
@@ -246,7 +247,7 @@ namespace ConnectionManager
 
                     int maxBandWidth = connectInfo.GetMaxBandwidth();
 
-                    mobile_listView.Items.Add(new Communication_Manager.MBNConnect { Name = name, Id = id, Adress = physical_address, Netwerk = networkInterface.Description, MaxBandWidth = maxBandWidth, BytesSentSpeed = bytesSentSpeed });
+                    mobile_listView.Items.Add(new MBNConnect.MBNConnect { Name = name, Id = id, Adress = physical_address, Netwerk = networkInterface.Description, MaxBandWidth = maxBandWidth, BytesSentSpeed = bytesSentSpeed });
                 }
             }
         }     
@@ -260,39 +261,8 @@ namespace ConnectionManager
         {
             //create mobile profile v4 windows10
             //https://msdn.microsoft.com/nl-nl/library/windows/desktop/mt243438
-            /* XNamespace xmlns = XNamespace.Get(http://www.microsoft.com/networking/WWAN/profile/v4"");
 
-             XDocument xmlDocument = new XDocument(
-                 new XElement(xmlns + "MBNProfile",
-                 new XElement(xmlns + "Name", "boomer3g"),
-                 new XElement(xmlns + "ICONFilePath", Path.GetFullPath("Resource/KPN-icon.bmp")),
-                 new XElement(xmlns + "Description", "3G Network profile created by Boomerweb"),
-                 new XElement(xmlns + "IsDefault", true),
-                 new XElement(xmlns + "ProfileCreationType", "UserProvisioned"),
-                 new XElement(xmlns + "SubscriberID", subscriberInfo.SubscriberID),
-                 new XElement(xmlns + "SimIccID", subscriberInfo.SimIccID),
-                 new XElement(xmlns + "AutoConnectOnInternet", false),
-                 new XElement(xmlns + "ConnectionMode", "auto")
-                )
-             );
-
-             //Create xml document
-             string xml;
-             XmlWriterSettings XmlWriterSet = new XmlWriterSettings();
-             XmlWriterSet.OmitXmlDeclaration = true;
-             using (StringWriter StrWriter = new StringWriter())
-             using (XmlWriter XWriter = XmlWriter.Create(StrWriter, XmlWriterSet))
-             {
-                 xmlDocument.WriteTo(XWriter);
-                 XWriter.Flush();
-                 xml = StrWriter.GetStringBuilder().ToString();
-             }
-             */
-            
-
-            MBNXMLCreator MBNProfile = new MBNXMLCreator();
-
-           XmlWriterSettings settings = new XmlWriterSettings();
+            XmlWriterSettings settings = new XmlWriterSettings();
            settings.OmitXmlDeclaration = true;           
 
            using (XmlWriter writer = XmlWriter.Create("MBNProfile.xml", settings))
@@ -322,7 +292,18 @@ namespace ConnectionManager
        {
            //connect to mobile profile
            mobile_password_label.Content = "Connected to Mobile Broadband Network";
-       }
+
+            MBNConnect.MBNConnect allive = new MBNConnect.MBNConnect();
+            MbnInterfaceManager mbnInfMgr = new MbnInterfaceManager();
+            IMbnInterfaceManager mbnInfMgrInterface = mbnInfMgr as IMbnInterfaceManager;
+
+            IMbnInterface[] mobileInterfaces = mbnInfMgrInterface.GetInterfaces() as IMbnInterface[];
+            IMbnInterface inf =(IMbnInterface)mobileInterfaces[1];
+            IMbnConnection conn = inf.GetConnection();
+            allive.KeepConnectionAllive(conn);
+        }
+
+       
 
        private void mobile_password_TextBox_TextChanged(object sender, TextChangedEventArgs e)
        {

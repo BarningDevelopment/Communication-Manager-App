@@ -3,7 +3,7 @@ using MbnApi;
 using System.Net.NetworkInformation;
 
 
-namespace Communication_Manager
+namespace MBNConnect
 {
     class MBNConnect
     {
@@ -46,7 +46,7 @@ namespace Communication_Manager
                     if (mobileInterfaces != null && mobileInterfaces.Length > 0)
                     {
                         // Use the first interface, as there should only be one mobile data adapter
-                        IMbnSignal signalDetails = mobileInterfaces[0] as IMbnSignal;
+                        IMbnSignal signalDetails = mobileInterfaces[1] as IMbnSignal;
 
                         Int32.TryParse(signalDetails.GetSignalStrength().ToString(), out PhoneSignal);
                         PhoneSignal = Convert.ToInt32(((float)PhoneSignal / 16) * 100);
@@ -130,6 +130,25 @@ namespace Communication_Manager
         public void OnVoiceCallStateChange(IMbnConnection newConnection)
         {
             Console.WriteLine("OnVoiceCallStateChange");
+        }
+
+        public bool KeepConnectionAllive(IMbnConnection newConnection)
+        {
+            //check every 30 sec if mobile connection is still active
+            MBN_ACTIVATION_STATE activationState;
+            string profileName;
+            newConnection.GetConnectionState(out activationState, out profileName);
+
+            Console.WriteLine("OnConnectStateChange - " + profileName + " - " + activationState);
+
+            if (activationState.ToString() =="connected")
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }

@@ -109,7 +109,6 @@
     <Compile Include="EapUserFactory.cs" />
     <Compile Include="Interop.cs" />
     <Compile Include="MBNConnect.cs" />
-    <Compile Include="MBNXMLCreator.cs" />
     <Compile Include="ProfileFactory.cs" />
     <Compile Include="wifiConnect.cs" />
     <Compile Include="BarningConnectionManager.xaml.cs">
