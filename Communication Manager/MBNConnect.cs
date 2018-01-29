@@ -1,5 +1,7 @@
 ﻿using System;
 using MbnApi;
+using System.Net.NetworkInformation;
+
 
 namespace Communication_Manager
 {
@@ -18,6 +20,13 @@ namespace Communication_Manager
 
         public string APNPassword { get; private set; }
         public string APNCompression { get; private set; }
+        public int MaxBandWidth { get; internal set; }
+        public int BytesSentSpeed { get; internal set; }
+        public string Name { get; internal set; }
+        public object Speed { get; internal set; }
+        public PhysicalAddress Adress { get; internal set; }
+        public string Netwerk { get; internal set; }
+        public string Id { get; internal set; }
 
         public void GetConnectionStatus()
         {
@@ -25,6 +34,12 @@ namespace Communication_Manager
             {
                 MbnInterfaceManager mbnInfMgr = new MbnInterfaceManager();
                 IMbnInterfaceManager mbnInfMgrInterface = mbnInfMgr as IMbnInterfaceManager;
+                if (mbnInfMgrInterface == null)
+                {
+                    string connectionMessage = "no connection found!";
+                    
+                }
+
                 if (mbnInfMgrInterface != null)
                 {
                     IMbnInterface[] mobileInterfaces = mbnInfMgrInterface.GetInterfaces() as IMbnInterface[];
@@ -47,85 +62,85 @@ namespace Communication_Manager
 
                                 if (subInfo != null)
                                 {
-                                    SIMNumber = subInfo.SimIccID;
+                                    SIMNumber = (subInfo.SimIccID);
                                 }
                                 else
                                 {
-                                    SIMNumber = "Unable to read SIM info";
+                                    Console.WriteLine("Unable to read SIM info");
                                 }
                             }
                             catch (Exception)
                             {
-                                SIMNumber = "Unable to read SIM info";
+                                Console.WriteLine("Unable to read SIM info");
                             }
-                        }
-
-                        // Check whether the connection is active
-                        IMbnConnection connection = mobileInterfaces[0].GetConnection();
-
-                        if (connection != null)
-                        {
-                            MBN_ACTIVATION_STATE state;
-                            string profileName = String.Empty;
-                            connection.GetConnectionState(out state, out profileName);
-
-                            var Connected = (state == MBN_ACTIVATION_STATE.MBN_ACTIVATION_STATE_ACTIVATED);
                         }
                         else
                         {
-                            Console.WriteLine("Connection not found.");
+
                         }
                     }
-                    else
-                    {
-                        Console.WriteLine("No mobile interfaces found.");
-                    }
                 }
-                else
-                {
-                    Console.WriteLine("mbnInfMgrInterface is null.");
-                }
+                Console.WriteLine("no good connection");
             }
             catch (Exception ex)
             {
-                if (ex.Message.Contains("SIM is not inserted."))
-                {
-                    SIMNumber = "No SIM inserted.";
-                }
-                else
-                {
-                    Console.WriteLine("LoginForm.DataConnection GetWindowsMobileDataStatus " + ex.Message);
-                }
-                PhoneSignal = 0;
-                PhoneNetwork = "Unknown";
+                Console.WriteLine(ex);
             }
         }
+           
 
-        class ConnectionEventsSink : IMbnConnectionEvents
+        public int GetMaxBandwidth()
         {
-            public ConnectionEventsSink() { }
-            public void OnConnectComplete(IMbnConnection newConnection, uint requestID, int status)
-            {
-                Console.WriteLine("OnConnectComplete");
-            }
-            public void OnConnectStateChange(IMbnConnection newConnection)
-            {
-                MBN_ACTIVATION_STATE activationState;
-                string profileName;
-                newConnection.GetConnectionState(out activationState, out profileName);
-                Console.WriteLine("OnConnectStateChange - " + profileName + " - " + activationState);
-            }
+            int maxBandwidth = 0;
+            NetworkInterface[] networkIntrInterfaces = NetworkInterface.GetAllNetworkInterfaces();
 
-            public void OnDisconnectComplete(IMbnConnection newConnection, uint requestID, int status)
+            foreach (var networkInterface in networkIntrInterfaces)
             {
-                Console.WriteLine("OnDisconnectComplete");
-            }
+                IPv4InterfaceStatistics interfaceStats = networkInterface.GetIPv4Statistics();
+                int bytesSentSpeed = (int)(interfaceStats.BytesSent);
+                int bytesReceivedSpeed = (int)(interfaceStats.BytesReceived);
 
-            public void OnVoiceCallStateChange(IMbnConnection newConnection)
-            {
-                Console.WriteLine("OnVoiceCallStateChange");
+                if (bytesSentSpeed + bytesReceivedSpeed > maxBandwidth)
+                {
+                    maxBandwidth = bytesSentSpeed + bytesReceivedSpeed;
+                }
+                return maxBandwidth;
             }
+            return 0;
+        }
+
+       
+        public void OnConnectComplete(IMbnConnection newConnection, uint requestID, int status)
+        {
+            Console.WriteLine("OnConnectComplete");
+        }
+        public void OnConnectStateChange(IMbnConnection newConnection)
+        {
+            MBN_ACTIVATION_STATE activationState;
+            string profileName;
+            newConnection.GetConnectionState(out activationState, out profileName);
+            Console.WriteLine("OnConnectStateChange - " + profileName + " - " + activationState);
+        }
+
+        public void OnDisconnectComplete(IMbnConnection newConnection, uint requestID, int status)
+        {
+            Console.WriteLine("OnDisconnectComplete");
+        }
+
+        public void OnVoiceCallStateChange(IMbnConnection newConnection)
+        {
+            Console.WriteLine("OnVoiceCallStateChange");
         }
     }
-    }
+}
+        
 
+        
+            
+        
+
+
+
+
+
+    

@@ -2,16 +2,13 @@
 using System.Windows;
 using System.Windows.Controls;
 using NativeWifi;
-using System.Runtime.InteropServices;
 using SimpleWifi;
 using SimpleWifi.Win32;
 using SimpleWifi.Win32.Interop;
 using System;
-using System.Data;
-
 using MbnApi;
-using System.Xml;
 using System.Net.NetworkInformation;
+using Communication_Manager;
 
 namespace ConnectionManager
 {
@@ -39,12 +36,9 @@ namespace ConnectionManager
         {
             InitializeComponent();
         }
-
-        private void checkBox1_Checked(object sender, RoutedEventArgs e)
-        {
-            
-        }
         //wifi elements
+        private void checkBox1_Checked(object sender, RoutedEventArgs e){}
+               
         private void wifi_checkBox_Checked(object sender, RoutedEventArgs e)
         {
             if (wifi_checkBox.IsChecked == true)
@@ -144,18 +138,11 @@ namespace ConnectionManager
                     wifiConnect selectedItem = (wifiConnect)wifi_listView.SelectedItem;
                     wifi_password_label.Content = "Already connected to " + selectedItem.AccesPoint;
                     return;
-                }else { 
-
-                    Console.WriteLine("ap: {0}\r\n", ap.Name);
-                    //check if SSID is desired
+                }else {                    
                     wifiConnect selectedAp = (wifiConnect)wifi_listView.SelectedItem;
 
                     if (ap.Name.StartsWith(selectedAp.AccesPoint))
-                    {
-                        //verify connection to desired SSID
-                   
-                        wifi_password_label.Content= ("connected:"+ ap.Name + "password needed: "+ ap.IsConnected +  "profile"+  ap.HasProfile+"\r\n");
-                                                
+                    {                        
                         wifi_password_label.Content =("Trying to connect..\r\n");
                         //AuthRequest authRequest = new AuthRequest(ap);
                         //authRequest.Password = "!VrH*DY^%4mdf&582GD8";                        
@@ -180,10 +167,24 @@ namespace ConnectionManager
 
                 if (selectedItem != null)
                 {
-                    wifi_password_label.Content = ("AccesPoint " + selectedItem.AccesPoint + " is selected");
+                     Wifi wifi = new Wifi();
+
+                    IEnumerable<AccessPoint> accessPoints = wifi.GetAccessPoints();
+
+                    // for each access point from list
+                    foreach (AccessPoint ap in accessPoints)
+                    {
+                        if (ap.Name.StartsWith(selectedItem.AccesPoint))
+                            {
+                            //verify connection to desired SSID
+                            wifi_password_label.Content = ("connected:" + ap.Name + System.Environment.NewLine);
+                            wifi_password_label.Content += ("password needed: " + ap.IsConnected+ System.Environment.NewLine);
+                            wifi_password_label.Content += ("profile" + ap.HasProfile + System.Environment.NewLine);
+                            }                       
+                    }
                 }
             }
-        }
+        }        
 
         private void wifi_password_TextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
@@ -193,95 +194,77 @@ namespace ConnectionManager
 
 
 
-
-
-
-
-        //mobile stuk  
-
+        //mobile stuk
         public void mobile_checkBox_Checked(object sender, RoutedEventArgs e)
         {
-            //get the connection state
-            try
+            mobile_password_label.Content = "Checking mobile networks....";
+            Communication_Manager.MBNConnect connectInfo = new Communication_Manager.MBNConnect();
+
+            NetworkInterface[] networkIntrInterfaces = NetworkInterface.GetAllNetworkInterfaces();
+
+            foreach (NetworkInterface networkInterface in networkIntrInterfaces)
             {
-                MbnInterfaceManager mbnInfMgr = new MbnInterfaceManager();
-                IMbnInterfaceManager mbnInfMgrInterface = mbnInfMgr as IMbnInterfaceManager;
-                if (mbnInfMgrInterface != null)
+                IPv4InterfaceStatistics interfaceStats = networkInterface.GetIPv4Statistics();
+                int bytesSentSpeed = (int)(interfaceStats.BytesSent);
+
+               
+                string id = networkInterface.Id;
+                string name  = networkInterface.Name;
+                string  description = networkInterface.Description;
+                PhysicalAddress physical_address = networkInterface.GetPhysicalAddress();
+                
+                //create the view
+                var gridview = new GridView();
+                this.mobile_listView.View = gridview;
+
+                gridview.Columns.Add(new GridViewColumn
                 {
-                    IMbnInterface[] mobileInterfaces = mbnInfMgrInterface.GetInterfaces() as IMbnInterface[];
-                    if (mobileInterfaces != null && mobileInterfaces.Length > 0)
-                    {
-                        // Use the first interface, as there should only be one mobile data adapter
-                        IMbnSignal signalDetails = mobileInterfaces[0] as IMbnSignal;
+                    Header = "MaxBandWidth",
+                    DisplayMemberBinding = new System.Windows.Data.Binding("MaxBandWidth")
+                });
 
-                        Int32.TryParse(signalDetails.GetSignalStrength().ToString(), out PhoneSignal);
-                        PhoneSignal = Convert.ToInt32(((float)PhoneSignal / 16) * 100);
-
-                        MBN_PROVIDER provider = mobileInterfaces[0].GetHomeProvider();
-                        PhoneNetwork = provider.providerName.ToString();
-
-                        if (String.IsNullOrEmpty(SIMNumber))
-                        {
-                            try
-                            {
-                                IMbnSubscriberInformation subInfo = mobileInterfaces[0].GetSubscriberInformation();
-
-                                if (subInfo != null)
-                                {
-                                    SIMNumber = subInfo.SimIccID;
-                                }
-                                else
-                                {
-                                    mobile_password_label.Content = "Unable to read SIM info";
-                                }
-                            }
-                            catch (Exception)
-                            {
-                                mobile_password_label.Content = "Unable to read SIM info";
-                            }
-                        }
-
-                        // Check whether the connection is active
-                        IMbnConnection connection = mobileInterfaces[0].GetConnection();
-
-                        if (connection != null)
-                        {
-                            MBN_ACTIVATION_STATE state;
-                            string profileName = String.Empty;
-                            connection.GetConnectionState(out state, out profileName);
-
-                            var Connected = (state == MBN_ACTIVATION_STATE.MBN_ACTIVATION_STATE_ACTIVATED);
-                        }
-                        else
-                        {
-                            mobile_password_label.Content=("Connection not found.");
-                        }
-                    }
-                    else
-                    {
-                        mobile_password_label.Content=("No mobile interfaces found.");
-                    }
-                }
-                else
+                gridview.Columns.Add(new GridViewColumn
                 {
-                    mobile_password_label.Content=("mbnInfMgrInterface is null.");
-                }
+                    Header = "bytesSentSpeed",
+                    DisplayMemberBinding = new System.Windows.Data.Binding("BytesSentSpeed")
+                });
+
+                gridview.Columns.Add(new GridViewColumn
+                {
+                    Header = "Name",
+                    DisplayMemberBinding = new System.Windows.Data.Binding("name")
+                });
+
+                gridview.Columns.Add(new GridViewColumn
+                {
+                    Header = "ID",
+                    DisplayMemberBinding = new System.Windows.Data.Binding("id")
+                });
+
+                gridview.Columns.Add(new GridViewColumn
+                {
+                    Header = "Adress",
+                    DisplayMemberBinding = new System.Windows.Data.Binding("physical_address")
+                });
+                gridview.Columns.Add(new GridViewColumn
+                {
+                    Header = "Netwerk",
+                    DisplayMemberBinding = new System.Windows.Data.Binding("description")
+                });
+
+                int maxBandWidth = connectInfo.GetMaxBandwidth();
+
+                mobile_listView.Items.Add(new Communication_Manager.MBNConnect { Name = name, Id = id, Adress = physical_address, Netwerk = description,MaxBandWidth = maxBandWidth, BytesSentSpeed = bytesSentSpeed,  });
             }
-            catch (Exception ex)
-            {               
-                if (ex.Message.Contains("SIM is not inserted."))
-                {
-                    mobile_password_label.Content = "No SIM inserted.";
-                }
-                else
-                {
-                    mobile_password_label.Content=("No mobile APN available");
-                }
-                PhoneSignal = 0;
-                PhoneNetwork = "Unknown";
-            }
-            
-        }                             
+        }     
+                    
+          public void ForceMobileConnection()
+        {
+            //route print
+        }        
+     
+        
+                   
         
 
         private void mobile_connect_button_Click(object sender, RoutedEventArgs e)
