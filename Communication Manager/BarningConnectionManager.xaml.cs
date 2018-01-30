@@ -198,7 +198,7 @@ namespace ConnectionManager
             foreach (NetworkInterface networkInterface in networkIntrInterfaces)
             {
                 //select only mobile apn
-                if (networkInterface.Name.Contains("Internal Ethernet Port Windows Phone Emulator Internal Switch")){
+                if (networkInterface.Name.Contains("Mobile Broadband adapter Mobiel")){
                     IPv4InterfaceStatistics interfaceStats = networkInterface.GetIPv4Statistics();
                     int bytesSentSpeed = (int)(interfaceStats.BytesSent);
 
@@ -263,28 +263,33 @@ namespace ConnectionManager
             //https://msdn.microsoft.com/nl-nl/library/windows/desktop/mt243438
 
             XmlWriterSettings settings = new XmlWriterSettings();
-           settings.OmitXmlDeclaration = true;           
+           settings.OmitXmlDeclaration = true;
 
-           using (XmlWriter writer = XmlWriter.Create("MBNProfile.xml", settings))
-           {
-              string m_strFilePath = "http://www.microsoft.com/networking/WWAN/profile/v4";     
-                
+            string MyNewPath = System.IO.Path.Combine("C://", "temp");
+            System.IO.Directory.CreateDirectory(MyNewPath);
+            string path = "c:\\temp\\MBNProfile.xml";
+
+            using (XmlWriter writer = XmlWriter.Create(path, settings))
+           {             
+
             XmlDocument xmlDocument = new XmlDocument();
                 //writer.WriteStartElement(m_strFilePath);
-                writer.WriteStartElement("MBNProfile");
-                writer.WriteElementString("Name", "boomer3g");
-                writer.WriteElementString("ICONFilePath", Path.GetFullPath("Images/Vodafone.bmp"));
-                writer.WriteElementString("Description", "3G Network profile created by Mwalima Peltenburg");
-                writer.WriteElementString("IsDefault", "true");
-                writer.WriteElementString("ProfileCreationType", "UserProvisioned");
-                writer.WriteElementString("SubscriberID", "subscriberInfo.SubscriberID");
-                writer.WriteElementString("SimIccID", "subscriberInfo.SimIccID");
-                writer.WriteElementString("AutoConnectOnInternet","false");
-                writer.WriteElementString("ConnectionMode", "auto");
 
-                //xmlDocument.Load(m_strFilePath);
+                writer.WriteStartElement("MBNProfileExt" , "http://www.microsoft.com/networking/WWAN/profile/v4");
+                writer.WriteElementString("Name", "!!##MBIMModemProvisionedContextInternetProfile##8931087115077657062");
+                writer.WriteElementString("Description", "ModemProvisionedProfile##vzwinternet created by Mwalima Peltenburg");
+                writer.WriteElementString("IsDefault", "true");
+                writer.WriteElementString("ProfileCreationType", "DeviceProvisiond");
+                writer.WriteElementString("SubscriberID", "204080806249856");
+                writer.WriteElementString("SimIccID", "8931087115077657062");
+                writer.WriteElementString("HomeProviderName", "KPN");
+                writer.WriteElementString("ConnectionMode", "auto");
+                writer.WriteElementString("ICONFilePath", Path.GetFullPath("Images/Vodafone.bmp"));                              
+                writer.WriteElementString("ProfileCreationType", "UserProvisioned");                              
+                writer.WriteElementString("AutoConnectOnInternet","true");        
                 writer.WriteEndElement();
                writer.Flush();
+                
                mobile_password_label.Content = "Profile is created";
            }
        }
